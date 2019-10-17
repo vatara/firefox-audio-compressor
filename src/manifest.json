@@ -1,0 +1,36 @@
+{
+  "manifest_version": 2,
+  "version": "0.1.10",
+  "name": "Audio Compressor",
+  "description": "Globally compress audio to make sound volumes more even",
+  "permissions": [
+    "http://*/*",
+    "https://*/*",
+    "tabs",
+    "storage",
+    "webNavigation"
+  ],
+  "background": {
+    "persistent": true,
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "icons": {
+    "64": "data/icons/logo-dark.svg"
+  },
+  "browser_action": {
+    "browser_style": true,
+    "default_icon": {
+      "64": "data/icons/logo-light.svg"
+    },
+    "default_popup": "data/popup/index.html",
+    "theme_icons": [
+      {
+        "dark": "data/icons/logo-dark.svg",
+        "light": "data/icons/logo-light.svg",
+        "size": 16
+      }
+    ]
+  }
+}
