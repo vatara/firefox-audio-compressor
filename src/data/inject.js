@@ -1,11 +1,15 @@
 'use strict';
 
+// for legacy browsers
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+
 var prefs = {
   sites: {
     'default': { enabled: false, threshold: -24, knee: 30, ratio: 12, attack: .003, release: .25, boost: 0 }
   }
 };
 var settings = prefs.sites.default;
+var parameterChangeDuration = .3;
 
 console.log('injecting compressor');
 
@@ -22,7 +26,7 @@ function adjustSource(target, settings) {
     if (!target.initialized) {
       console.log('creating compressor', settings.enabled);
 
-      target.context = new window.AudioContext();
+      target.context = new AudioContext();
       target.source = target.context.createMediaElementSource(target);
       target.compressor = target.context.createDynamicsCompressor();
       target.boost = target.context.createGain();
@@ -30,13 +34,13 @@ function adjustSource(target, settings) {
     }
 
     try {
-      target.source.disconnect(target.context.destination);
+      target.source.disconnect();
     }
     catch (e) {
-      console.log("Caught error disconnecting source");
+      console.log("Caught error disconnecting source", e);
     }
+
     target.source.connect(target.compressor);
-    target.compressor = target.compressor;
     target.compressor.connect(target.boost);
     target.boost.connect(target.context.destination);
 
@@ -58,14 +62,37 @@ function adjustSource(target, settings) {
 
   function applySettings() {
     for (var s in settings) {
+      var value = settings[s];
+
       if (s == 'enabled') {
 
       }
       else if (s == 'boost') {
-        target.boost.gain.value = settings[s] * 4 + 1;
+        try {
+          target.boost.gain.exponentialRampToValueAtTime(value * 4 + 1, target.currentTime + parameterChangeDuration);
+        }
+        catch (e) {
+          console.log('Error setting gain', e);
+          target.boost.gain.value = value * 4 + 1;
+        }
       }
       else {
-        target.compressor[s].value = settings[s];
+        try {
+          if (value == 0) {
+            value = .01;
+          }
+
+          if (s == 'threshold') {
+            target.compressor[s].linearRampToValueAtTime(value, target.currentTime + parameterChangeDuration);
+          }
+          else {
+            target.compressor[s].exponentialRampToValueAtTime(value, target.currentTime + parameterChangeDuration);
+          }
+        }
+        catch (e) {
+          console.log('Error setting ' + s, e);
+          target.compressor[s].value = value;
+        }
       }
     }
   }

@@ -1,7 +1,5 @@
 'use strict';
 
-var audioCompressorElement;
-
 var webNavigation = {
   observe(details) {
     if (details.url.startsWith('http')) {
