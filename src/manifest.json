@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "version": "0.1.14",
+  "version": "0.1.15",
   "name": "Audio Compressor",
-  "description": "Globally compress audio to make sound volumes more even",
+  "description": "Compress audio to make sound volumes more even",
   "permissions": [
     "http://*/*",
     "https://*/*",
