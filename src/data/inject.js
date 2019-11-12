@@ -13,10 +13,15 @@ var parameterChangeDuration = .3;
 
 console.log('injecting compressor');
 
-let audio;
+var audio;
 function adjustSource(target, settings) {
-
   audio = target;
+
+  /*
+  document.querySelectorAll('video, audio').forEach((e) => {
+    e.crossOrigin = 'anonymous';
+  });
+  */
 
   if (typeof (target.attached) === "undefined") {
     target.attached = false;
@@ -25,6 +30,8 @@ function adjustSource(target, settings) {
   if (!target.attached && settings.enabled) {
     if (!target.initialized) {
       console.log('creating compressor', settings.enabled);
+
+      //target.crossOrigin = 'anonymous';
 
       target.context = new AudioContext();
       target.source = target.context.createMediaElementSource(target);
@@ -136,6 +143,19 @@ chrome.storage.onChanged.addListener(changes => {
 window.addEventListener('playing', ({ target }) => {
   adjustSource(target, settings);
 }, true);
+
+window.addEventListener('canplay', ({ target }) => {
+  adjustSource(target, settings);
+}, true);
+
+const play = Audio.prototype.play;
+Audio.prototype.play = function () {
+  try {
+    adjustSource(this, settings);
+  }
+  catch (e) { console.log(e) }
+  return play.apply(this, arguments);
+};
 
 browser.runtime.onMessage.addListener(() => {
   var active = false;

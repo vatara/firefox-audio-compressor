@@ -54,8 +54,8 @@ var presets = {
   'Disabled': { enabled: false, threshold: 0, knee: 30, ratio: 1, attack: .003, release: .25, boost: 0 },
   'None': { enabled: true, threshold: 0, knee: 30, ratio: 1, attack: .003, release: .25, boost: 0 },
   'Low': { enabled: true, threshold: -12, knee: 30, ratio: 6, attack: .003, release: .25, boost: 0 },
-  'Normal': { enabled: true, threshold: -24, knee: 30, ratio: 12, attack: .003, release: .25, boost: 0 },
-  'High': { enabled: true, threshold: -40, knee: 30, ratio: 20, attack: .003, release: .25, boost: 0 }
+  'Medium': { enabled: true, threshold: -30, knee: 30, ratio: 12, attack: .003, release: .25, boost: 0 },
+  'High': { enabled: true, threshold: -50, knee: 30, ratio: 20, attack: .003, release: .25, boost: 0 }
 };
 
 for (var p in presets) {
