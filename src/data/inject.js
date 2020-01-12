@@ -11,7 +11,9 @@ var prefs = {
 var settings = prefs.sites.default;
 var parameterChangeDuration = .3;
 
-console.log('injecting compressor');
+var logPrefix = "Audio Compressor: ";
+
+//console.log(logPrefix + 'injecting compressor');
 
 var audio;
 function adjustSource(target, settings) {
@@ -29,7 +31,7 @@ function adjustSource(target, settings) {
 
   if (!target.attached && settings.enabled) {
     if (!target.initialized) {
-      console.log('creating compressor', settings.enabled);
+      console.log(logPrefix + 'creating compressor', settings);
 
       //target.crossOrigin = 'anonymous';
 
@@ -44,7 +46,7 @@ function adjustSource(target, settings) {
       target.source.disconnect();
     }
     catch (e) {
-      console.log("Caught error disconnecting source", e);
+      console.log(logPrefix + "caught error disconnecting source", e);
     }
 
     target.source.connect(target.compressor);
@@ -55,7 +57,7 @@ function adjustSource(target, settings) {
     target.attached = true;
   }
   else if (target.attached && !settings.enabled) {
-    console.log('disabling compressor');
+    console.log(logPrefix + 'disabling compressor');
 
     target.source.disconnect(target.compressor);
     target.compressor.disconnect(target.boost);
@@ -79,7 +81,7 @@ function adjustSource(target, settings) {
           target.boost.gain.exponentialRampToValueAtTime(value * 4 + 1, target.currentTime + parameterChangeDuration);
         }
         catch (e) {
-          console.log('Error setting gain', e);
+          console.log(logPrefix + 'error setting gain', e);
           target.boost.gain.value = value * 4 + 1;
         }
       }
@@ -97,7 +99,7 @@ function adjustSource(target, settings) {
           }
         }
         catch (e) {
-          console.log('Error setting ' + s, e);
+          console.log(logPrefix + 'error setting ' + s, e);
           target.compressor[s].value = value;
         }
       }
@@ -123,9 +125,13 @@ function getBestSiteMatch() {
   return bestSiteMatch;
 }
 
-var update = () => {
+var update = (target) => {
+  if (target == null) {
+    target = audio;
+  }
+
   settings = prefs.sites[getBestSiteMatch()];
-  adjustSource(audio, settings);
+  adjustSource(target, settings);
 };
 
 chrome.storage.local.get(prefs, results => {
@@ -141,19 +147,19 @@ chrome.storage.onChanged.addListener(changes => {
 });
 
 window.addEventListener('playing', ({ target }) => {
-  adjustSource(target, settings);
+  update(target, settings);
 }, true);
 
 window.addEventListener('canplay', ({ target }) => {
-  adjustSource(target, settings);
+  update(target, settings);
 }, true);
 
 const play = Audio.prototype.play;
 Audio.prototype.play = function () {
   try {
-    adjustSource(this, settings);
+    update(this, settings);
   }
-  catch (e) { console.log(e) }
+  catch (e) { console.log(logPrefix, e) }
   return play.apply(this, arguments);
 };
 
