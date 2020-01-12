@@ -4,8 +4,7 @@
   "name": "Audio Compressor",
   "description": "Compress audio to make sound volumes more even",
   "permissions": [
-    "http://*/*",
-    "https://*/*",
+    "<all_urls>",
     "tabs",
     "storage",
     "webNavigation"
@@ -16,6 +15,17 @@
       "background.js"
     ]
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "data/inject.js"
+      ]
+    }
+  ],
   "icons": {
     "64": "data/icons/logo-dark.svg"
   },
