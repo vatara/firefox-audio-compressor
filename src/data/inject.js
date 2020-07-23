@@ -78,7 +78,7 @@ function adjustSource(target, settings) {
       }
       else if (s == 'boost') {
         try {
-          target.boost.gain.exponentialRampToValueAtTime(value * 4 + 1, target.currentTime + parameterChangeDuration);
+          target.boost.gain.exponentialRampToValueAtTime(value * 4 + 1, parameterChangeDuration);
         }
         catch (e) {
           console.log(logPrefix + 'error setting gain', e);
@@ -92,10 +92,10 @@ function adjustSource(target, settings) {
           }
 
           if (s == 'threshold') {
-            target.compressor[s].linearRampToValueAtTime(value, target.currentTime + parameterChangeDuration);
+            target.compressor[s].linearRampToValueAtTime(value, parameterChangeDuration);
           }
           else {
-            target.compressor[s].exponentialRampToValueAtTime(value, target.currentTime + parameterChangeDuration);
+            target.compressor[s].exponentialRampToValueAtTime(value, parameterChangeDuration);
           }
         }
         catch (e) {
