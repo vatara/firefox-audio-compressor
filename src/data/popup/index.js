@@ -270,13 +270,20 @@ function loadSettings() {
   chrome.storage.local.get(prefs, results => {
     Object.assign(prefs, results);
 
+    var sortedList = [];
     for (var key in prefs.sites) {
       if (key == 'default') {
         continue;
       }
+      sortedList.push(key);
+    }
+    sortedList = sortedList.sort((a, b) => a.localeCompare(b));
+
+    for (var key of sortedList) {
       var option = new Option(key, key);
       elements.currentSite.options[elements.currentSite.options.length] = option;
     }
+
     if (prefs.sites.default == null) {
       prefs.sites.default = defaultCompressorSettings;
     }
