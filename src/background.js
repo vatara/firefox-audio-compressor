@@ -1,28 +1,5 @@
 'use strict';
 
-var webNavigation = {
-  observe(details) {
-    if (details.url.startsWith('http')) {
-      const { frameId, tabId } = details;
-      chrome.tabs.executeScript(tabId, {
-        file: 'data/inject.js',
-        runAt: 'document_start',
-        matchAboutBlank: true,
-        frameId
-      });
-    }
-  },
-  install() {
-    chrome.webNavigation.onCommitted.removeListener(webNavigation.observe);
-    chrome.webNavigation.onCommitted.addListener(webNavigation.observe);
-  },
-  remove() {
-    chrome.webNavigation.onCommitted.removeListener(webNavigation.observe);
-  }
-};
-webNavigation.install();
-
-
 let memoize = function (factory, ctx) {
   var cache = {};
   return function (key) {
@@ -100,7 +77,8 @@ function updateIconStatus(tab) {
     try {
       browser.tabs.sendMessage(tab.id, {}, null, (message) => {
         if (message == null) {
-          console.log(chrome.runtime.lastError);
+          // if you don't check this value chrome logs an error
+          var discardError = chrome.runtime.lastError;
         }
         else {
           updateBrowserActionIcon(message.active);
