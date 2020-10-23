@@ -1,7 +1,7 @@
 'use strict';
 
 // for legacy browsers
-const AudioContext = window.AudioContext || window.webkitAudioContext;
+//const AudioContext = window.AudioContext || window.webkitAudioContext;
 
 var prefs = {
   sites: {
@@ -9,23 +9,28 @@ var prefs = {
   }
 };
 var settings = prefs.sites.default;
-var parameterChangeDuration = .3;
+var parameterChangeDuration = .1;
 
-var logPrefix = "Audio Compressor: ";
+var logPrefix = 'Audio Compressor: ';
 
 //console.log(logPrefix + 'injecting compressor');
 
-var audio;
-function adjustSource(target, settings) {
-  audio = target;
+window.audioCompressor = {};
 
+function adjustSource(target, settings) {
   /*
   document.querySelectorAll('video, audio').forEach((e) => {
     e.crossOrigin = 'anonymous';
   });
   */
 
-  if (typeof (target.attached) === "undefined") {
+  if (typeof target === 'undefined') {
+    return;
+  }
+
+  window.audioCompressor.target = target;
+
+  if (typeof (target.attached) === 'undefined') {
     target.attached = false;
   }
 
@@ -46,7 +51,7 @@ function adjustSource(target, settings) {
       target.source.disconnect();
     }
     catch (e) {
-      console.log(logPrefix + "caught error disconnecting source", e);
+      console.log(logPrefix + 'caught error disconnecting source', e);
     }
 
     target.source.connect(target.compressor);
@@ -87,8 +92,10 @@ function adjustSource(target, settings) {
       }
       else {
         try {
-          if (value == 0) {
-            value = .01;
+          if (s == 'knee' || s == 'attack' || s == 'release') {
+            if (value <= 0) {
+              value = .001;
+            }
           }
 
           if (s == 'threshold') {
@@ -106,6 +113,9 @@ function adjustSource(target, settings) {
     }
   }
 
+  if (typeof browser === 'undefined') {
+    window.browser = chrome;
+  }
   browser.runtime.sendMessage({ active: target.attached == true });
 }
 
@@ -127,7 +137,9 @@ function getBestSiteMatch() {
 
 var update = (target) => {
   if (target == null) {
-    target = audio;
+    if (typeof audioCompressor !== 'undefined') {
+      target = audioCompressor.target;
+    }
   }
 
   settings = prefs.sites[getBestSiteMatch()];
@@ -154,7 +166,10 @@ window.addEventListener('canplay', ({ target }) => {
   update(target, settings);
 }, true);
 
-const play = Audio.prototype.play;
+if (typeof play === 'undefined') {
+  const play = Audio.prototype.play;
+}
+
 Audio.prototype.play = function () {
   try {
     update(this, settings);
@@ -163,10 +178,19 @@ Audio.prototype.play = function () {
   return play.apply(this, arguments);
 };
 
+if (typeof browser === 'undefined') {
+  window.browser = chrome;
+}
 browser.runtime.onMessage.addListener(() => {
-  var active = false;
-  if (audio != null) {
-    active = audio.attached == true;
+  if (window.audioCompressor == null) {
+    return;
   }
-  return Promise.resolve({ active: active });
+  if (window.audioCompressor.target == null) {
+    return;
+  }
+  if (!window.audioCompressor.target.attached) {
+    return;
+  }
+
+  chrome.runtime.sendMessage({ active: true });
 });
