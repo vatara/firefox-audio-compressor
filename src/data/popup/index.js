@@ -13,7 +13,7 @@ var elements = {
 
 function assignRangeControls(id) {
   elements.compressorControls[id] = document.getElementById(id);
-  var num = id + "Number";
+  var num = id + 'Number';
   elements.compressorControls[num] = document.getElementById(num);
 
   elements.compressorControls[id].onchange = () => {
@@ -26,12 +26,12 @@ function assignRangeControls(id) {
   }
 }
 
-assignRangeControls("threshold");
-assignRangeControls("knee");
-assignRangeControls("ratio");
-assignRangeControls("attack");
-assignRangeControls("release");
-assignRangeControls("boost");
+assignRangeControls('threshold');
+assignRangeControls('knee');
+assignRangeControls('ratio');
+assignRangeControls('attack');
+assignRangeControls('release');
+assignRangeControls('boost');
 
 elements.enabled.onchange = () => {
   save.sites();
@@ -39,7 +39,7 @@ elements.enabled.onchange = () => {
 
 var defaultCompressorSettings = { enabled: false, threshold: -24, knee: 30, ratio: 12, attack: .003, release: .25, boost: 0 };
 
-var currentSite = "default";
+var currentSite = 'default';
 var urlSegments = [];
 var currentUrl = '';
 
@@ -107,7 +107,7 @@ function createUrlSegment(text, clickable = false) {
 
   if (clickable) {
     element.addEventListener('click', event => {
-      var url = "";
+      var url = '';
       for (var i = 0; i < urlSegments.length; i++) {
         url += urlSegments[i].textContent;
         if (urlSegments[i] == event.target) {
@@ -237,8 +237,21 @@ var save = {
   }
 };
 
-browser.tabs.query({ currentWindow: true, active: true }).then((tabs) => {
-  let tab = tabs[0]; // Safe to assume there will only be one result
+
+var isChrome = false;
+if (typeof browser === 'undefined') {
+  window.browser = chrome;
+  isChrome = true;
+}
+if (isChrome) {
+  browser.tabs.query({ currentWindow: true, active: true }, queryTabsCallback);
+}
+else {
+  browser.tabs.query({ currentWindow: true, active: true }).then(queryTabsCallback, console.error);
+}
+
+function queryTabsCallback(tabs) {
+  let tab = tabs[0]; // Safe to assume there will be one result
 
   elements.url.innerHTML = '';
   urlSegments = [];
@@ -263,8 +276,7 @@ browser.tabs.query({ currentWindow: true, active: true }).then((tabs) => {
   createUrlSegment(url.hash, true);
 
   loadSettings();
-
-}, console.error);
+}
 
 function loadSettings() {
   chrome.storage.local.get(prefs, results => {
