@@ -7,6 +7,7 @@ var prefs = {
   sites: {
     'default': { enabled: false, threshold: -24, knee: 30, ratio: 12, attack: .003, release: .25, boost: 0 }
   }
+  //disableForCrossSiteElements: false
 };
 var settings = prefs.sites.default;
 var parameterChangeDuration = .1;
@@ -35,16 +36,34 @@ function adjustSource(target, settings) {
   }
 
   if (!target.attached && settings.enabled) {
+    /*
+    var targetURL;
+    try {
+      targetURL = new URL(target.currentSrc);
+    }
+    catch (e) {}
+
+    // not as simple as checking the url host
+    // videos can have a source like: blob:twitch.tv/ajhakjdshakhdsj
+    if (prefs.disableForCrossSiteElements && 
+        targetURL != null && 
+        window.location.host != targetURL.host) {
+      console.log(logPrefix + ' cross-origin source, not enabling', target);
+      return;
+    }
+    */
+
     if (!target.initialized) {
-      console.log(logPrefix + 'creating compressor', settings);
+        console.log(logPrefix + 'creating compressor', settings);
+        //console.log(logPrefix + 'creating compressor', settings, target);
 
-      //target.crossOrigin = 'anonymous';
+        //target.crossOrigin = 'anonymous';
 
-      target.context = new AudioContext();
-      target.source = target.context.createMediaElementSource(target);
-      target.compressor = target.context.createDynamicsCompressor();
-      target.boost = target.context.createGain();
-      target.initialized = true;
+        target.context = new AudioContext();
+        target.source = target.context.createMediaElementSource(target);
+        target.compressor = target.context.createDynamicsCompressor();
+        target.boost = target.context.createGain();
+        target.initialized = true;
     }
 
     try {
@@ -152,6 +171,11 @@ chrome.storage.local.get(prefs, results => {
 });
 
 chrome.storage.onChanged.addListener(changes => {
+  /*
+  if (changes.disableForCrossSiteElements) {
+    prefs.disableForCrossSiteElements = changes.disableForCrossSiteElements.newValue == true;
+  }
+  */
   if (changes.sites) {
     prefs.sites = changes.sites.newValue;
     update();

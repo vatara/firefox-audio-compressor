@@ -1,6 +1,7 @@
 'use strict';
 
 var elements = {
+  //disableForCrossSiteElements: document.getElementById('disableForCrossSiteElements'),
   presets: document.getElementById('presets'),
   enabled: document.getElementById('enabled'),
   compressorControlsTable: document.getElementById('compressorControlsTable'),
@@ -18,11 +19,11 @@ function assignRangeControls(id) {
 
   elements.compressorControls[id].onchange = () => {
     elements.compressorControls[num].value = elements.compressorControls[id].value;
-    save.sites();
+    saveSettings();
   }
   elements.compressorControls[num].onchange = () => {
     elements.compressorControls[id].value = elements.compressorControls[num].value;
-    save.sites();
+    saveSettings();
   }
 }
 
@@ -34,8 +35,14 @@ assignRangeControls('release');
 assignRangeControls('boost');
 
 elements.enabled.onchange = () => {
-  save.sites();
+  saveSettings();
 }
+
+/*
+elements.disableForCrossSiteElements.onchange = () => {
+  saveSettings();
+}
+*/
 
 var defaultCompressorSettings = { enabled: false, threshold: -24, knee: 30, ratio: 12, attack: .003, release: .25, boost: 0 };
 
@@ -47,6 +54,7 @@ var prefs = {
   sites: {
     'default': defaultCompressorSettings
   }
+  //disableForCrossSiteElements: false
 };
 
 // enabled, threshold, knee, ratio, attack, release, boost
@@ -66,7 +74,7 @@ for (var p in presets) {
   ((p2) => {
     button.onclick = () => {
       applySettingsToControls(presets[p2]);
-      save.sites();
+      saveSettings();
     }
   })(p);
 }
@@ -177,7 +185,7 @@ function setCurrentSite(site) {
     prefs.sites[site] = getCurrentCompressorSettings();
     var option = new Option(site, site);
     elements.currentSite.options[elements.currentSite.options.length] = option;
-    save.sites();
+    saveSettings();
   }
 
   elements.currentSite.value = site;
@@ -211,7 +219,7 @@ function removeSite() {
   elements.currentSite.options[elements.currentSite.selectedIndex].remove();
   elements.currentSite.value = 'default';
   onCurrentSiteChange();
-  save.sites();
+  saveSettings();
 }
 
 function getCurrentCompressorSettings() {
@@ -229,14 +237,12 @@ function getCurrentCompressorSettings() {
   return settings;
 }
 
-var save = {
-  prefs: prefs => new Promise(resolve => chrome.storage.local.set(prefs, resolve)),
-  sites: () => {
-    prefs.sites[currentSite] = getCurrentCompressorSettings();
-    save.prefs({ sites: prefs.sites });
-  }
-};
-
+function saveSettings() {
+  //prefs.disableForCrossSiteElements = elements.disableForCrossSiteElements.checked;
+  prefs.sites[currentSite] = getCurrentCompressorSettings();
+  chrome.storage.local.set(prefs);
+  console.log('saved', prefs);
+}
 
 var isChrome = false;
 if (typeof browser === 'undefined') {
@@ -281,6 +287,8 @@ function queryTabsCallback(tabs) {
 function loadSettings() {
   chrome.storage.local.get(prefs, results => {
     Object.assign(prefs, results);
+
+    //elements.disableForCrossSiteElements.checked = prefs.disableForCrossSiteElements == true;
 
     var sortedList = [];
     for (var key in prefs.sites) {
