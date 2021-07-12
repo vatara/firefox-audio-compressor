@@ -36,6 +36,9 @@ let colorToRGBA = (function () {
 var currentTheme;
 
 function isThemeDark() {
+  if (matchMedia('(prefers-color-scheme: dark)').matches) {
+    return true;
+  }
   if (typeof currentTheme == 'undefined' || currentTheme == null || currentTheme.colors == null || currentTheme.colors.toolbar == null) {
     return false;
   }
