@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "version": "0.1.20",
+  "version": "0.1.21",
   "name": "Audio Compressor",
   "description": "Compress audio to make sound volumes more even",
   "permissions": [
