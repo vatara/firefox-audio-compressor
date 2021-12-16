@@ -102,11 +102,11 @@ function adjustSource(target, settings) {
       }
       else if (s == 'boost') {
         try {
-          target.boost.gain.exponentialRampToValueAtTime(value * 4 + 1, parameterChangeDuration);
+          target.boost.gain.exponentialRampToValueAtTime(value / 100 + 1;, parameterChangeDuration);
         }
         catch (e) {
           console.log(logPrefix + 'error setting gain', e);
-          target.boost.gain.value = value * 4 + 1;
+          target.boost.gain.value = value / 100 + 1;;
         }
       }
       else {
