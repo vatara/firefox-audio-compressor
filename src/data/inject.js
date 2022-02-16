@@ -16,7 +16,9 @@ var logPrefix = 'Audio Compressor: ';
 
 //console.log(logPrefix + 'injecting compressor');
 
-window.audioCompressor = {};
+window.audioCompressor = {
+  targets: []
+};
 
 function adjustSource(target, settings) {
   /*
@@ -25,11 +27,12 @@ function adjustSource(target, settings) {
   });
   */
 
-  if (typeof target === 'undefined') {
-    return;
-  }
+  if (typeof target === 'undefined') return;
+  if (target == null) return;
 
-  window.audioCompressor.target = target;
+  if (!window.audioCompressor.targets.includes(target)) {
+    window.audioCompressor.targets.push(target);
+  }
 
   if (typeof (target.attached) === 'undefined') {
     target.attached = false;
@@ -155,14 +158,33 @@ function getBestSiteMatch() {
 }
 
 var update = (target) => {
+  if (typeof window.audioCompressor == 'undefined') return;
+
+  let settings = prefs.sites[getBestSiteMatch()];
+
+  window.audioCompressor.targets.forEach((t) => {
+    console.log(logPrefix + 'updating target', t);
+    adjustSource(t, settings);
+  });
+
   if (target == null) {
-    if (typeof audioCompressor !== 'undefined') {
-      target = audioCompressor.target;
+    let videos = document.querySelectorAll('video');
+    for (var v of videos) {
+      let playing = !!(v.currentTime > 0 && !v.paused && !v.ended && v.readyState > 2 && !v.muted)
+      if (!playing) continue;
+      if (window.audioCompressor.targets.includes(v)) continue;
+
+      target = v;
+      break;
     }
   }
+  if (target == null) return;
 
-  settings = prefs.sites[getBestSiteMatch()];
-  adjustSource(target, settings);
+
+  if (!window.audioCompressor.targets.includes(target)) {
+    console.log(logPrefix + 'adding target', target);
+    adjustSource(target, settings);
+  }
 };
 
 chrome.storage.local.get(prefs, results => {
@@ -183,12 +205,23 @@ chrome.storage.onChanged.addListener(changes => {
 });
 
 window.addEventListener('playing', ({ target }) => {
-  update(target, settings);
+  update(target);
 }, true);
 
 window.addEventListener('canplay', ({ target }) => {
-  update(target, settings);
+  update(target);
 }, true);
+
+setInterval(() => {
+  let videos = document.querySelectorAll('video');
+  videos.forEach((v) => {
+    let playing = !!(v.currentTime > 0 && !v.paused && !v.ended && v.readyState > 2 && !v.muted)
+    if (!playing) return;
+    if (window.audioCompressor.targets.includes(v)) return;
+    update(v);
+  });
+
+}, 500);
 
 if (typeof play === 'undefined') {
   const play = Audio.prototype.play;
@@ -196,7 +229,7 @@ if (typeof play === 'undefined') {
 
 Audio.prototype.play = function () {
   try {
-    update(this, settings);
+    update(this);
   }
   catch (e) { console.log(logPrefix, e) }
   return play.apply(this, arguments);
@@ -209,12 +242,18 @@ browser.runtime.onMessage.addListener(() => {
   if (window.audioCompressor == null) {
     return;
   }
-  if (window.audioCompressor.target == null) {
-    return;
-  }
-  if (!window.audioCompressor.target.attached) {
+  if (window.audioCompressor.targets == null) {
     return;
   }
 
-  chrome.runtime.sendMessage({ active: true });
+  var active = false;
+  for (var t of window.audioCompressor.targets) {
+    if (t == null) continue;
+    if (t.attached) {
+      active = true;
+      break;
+    }
+  }
+
+  chrome.runtime.sendMessage({ active: active });
 });
