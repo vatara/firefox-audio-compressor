@@ -6,8 +6,24 @@ body {
   flex-direction: column;
   user-select: none;
   -moz-user-select:  none;
-  overflow: hidden;
-  min-width: 450px;
+  overflow-y: hidden;
+}
+
+#body {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  flex: 1;
+}
+
+@media only screen and (min-width: 480px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  #body {
+    align-items: center;
+  }
 }
 
 header {
@@ -15,16 +31,9 @@ header {
   margin-bottom: 20px;
 }
 
-#body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-}
-
 #body table {
   table-layout: fixed;
+  width: 480px;
 }
 
 .range-wrapper {
