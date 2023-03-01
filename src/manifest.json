@@ -1,11 +1,12 @@
 {
-  "manifest_version": 2,
-  "version": "0.1.23",
-  "name": "Audio Compressor",
+  "manifest_version": 3,
+  "version": "0.1.24",
+  "name": "Audio Compressor Test",
   "description": "Compress audio to make sound volumes more even",
   "permissions": [
     "tabs",
-    "storage"
+    "storage",
+    "scripting"
   ],
   "background": {
     "scripts": [
@@ -30,7 +31,7 @@
     "64": "data/icons/logo-mid-active-64.png",
     "128": "data/icons/logo-mid-active-128.png"
   },
-  "browser_action": {
+  "action": {
     "browser_style": true,
     "default_icon": {
       "16": "data/icons/logo-mid-16.png",
@@ -47,5 +48,10 @@
         "size": 16
       }
     ]
-  }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "e27e6107-706b-40a7-9415-a20707d8831a"
+    }
+  }  
 }

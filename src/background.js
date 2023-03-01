@@ -127,7 +127,7 @@ var chromeIcons = {
 
 function updateBrowserActionIcon(active) {
   if (isChrome) {
-    browser.browserAction.setIcon({ path: active ? chromeIcons.active : chromeIcons.inactive });
+    browser.action.setIcon({ path: active ? chromeIcons.active : chromeIcons.inactive });
   }
   else {
     var dark = !isThemeDark();
@@ -136,6 +136,6 @@ function updateBrowserActionIcon(active) {
       + (dark ? 'dark' : 'light')
       + (active ? '-active' : '') + '.svg';
 
-    browser.browserAction.setIcon({ path: iconUrl });
+    browser.action.setIcon({ path: iconUrl });
   }
 }
