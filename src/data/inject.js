@@ -105,7 +105,12 @@ function adjustSource(target, settings) {
       }
       else if (s == 'boost') {
         try {
-          target.boost.gain.exponentialRampToValueAtTime(value * 4 + 1, parameterChangeDuration);
+          // clamp input to a range of [-1, 1]
+          let gain = Math.max(Math.min(parseFloat(value), 1), -1);
+          // scale gain input range [-1, 1] to output range [~.001, ~5]
+          // so that an input of 0 keeps the same output level
+          gain = (gain + 1.001) * 2.5;
+          target.boost.gain.exponentialRampToValueAtTime(gain, parameterChangeDuration);
         }
         catch (e) {
           console.log(logPrefix + 'error setting gain', e);
