@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "0.1.25",
+  "version": "0.1.26",
   "name": "Audio Compressor Test",
   "description": "Compress audio to make sound volumes more even",
   "permissions": [
