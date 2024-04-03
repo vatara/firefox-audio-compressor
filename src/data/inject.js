@@ -110,6 +110,7 @@ function adjustSource(target, settings) {
           // scale gain input range [-1, 1] to output range [~0, ~5]
           // so that an input of 0 keeps the same output level
           gain = Math.pow((gain + 1) / 2, 2.3219281) * 5;
+          gain = Math.max(.00001, gain);
           target.boost.gain.exponentialRampToValueAtTime(gain, parameterChangeDuration);
         }
         catch (e) {
