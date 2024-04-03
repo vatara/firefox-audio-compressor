@@ -4,10 +4,8 @@ import { isThemeDark } from './audioCompressor.js';
 
 var currentTheme;
 
-window.isChrome = typeof browser === 'undefined';
-if (isChrome) {
-  window.browser = chrome;
-}
+var isChrome = typeof window === 'undefined';
+var browser = browser || chrome;
 
 if (typeof browser.theme !== 'undefined') {
   browser.theme.getCurrent().then((theme) => {
