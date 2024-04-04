@@ -5,8 +5,7 @@
   "description": "Compress audio to make sound volumes more even",
   "permissions": [
     "tabs",
-    "storage",
-    "scripting"
+    "storage"
   ],
   "background": {
     "service_worker": "background.js",
