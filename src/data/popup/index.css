@@ -13,17 +13,12 @@ body {
 #body {
   display: flex;
   flex-direction: column;
-  align-items: left;
   flex: 1;
 }
 
 @media only screen and (min-width: 480px) {
   body {
     overflow-x: hidden;
-  }
-
-  #body {
-    align-items: center;
   }
 }
 
@@ -36,6 +31,7 @@ header {
   table-layout: fixed;
   width: 480px;
   text-align: center;
+  align-self: center;
 }
 
 .range-wrapper {
@@ -81,4 +77,27 @@ input[type='number'] {
 
 #shortcut-update, #shortcut-reset, #shortcuts-link {
   display: none;
+}
+
+#support-info {
+  margin-top: 20px;
+}
+
+.support-link {
+  background-color: rgb(83, 134, 192);
+  border-radius: 5px;
+  padding: 5px;
+  display: inline-block;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.support-text {
+  vertical-align: super;
+}
+
+.bmc-logo {
+  height: 20px;
+  width: auto;
 }
