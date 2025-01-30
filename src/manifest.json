@@ -14,6 +14,14 @@
       "background.js"
     ]
   },
+  "commands": {
+    "toggle-enable": {
+      "suggested_key": {
+        "default": "Alt+Shift+C"
+      },
+      "description": "Enables/disables the current preset"
+    }
+  },
   "content_scripts": [
     {
       "matches": [

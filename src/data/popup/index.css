@@ -35,6 +35,7 @@ header {
 #body table {
   table-layout: fixed;
   width: 480px;
+  text-align: center;
 }
 
 .range-wrapper {
@@ -53,7 +54,7 @@ header {
 }
 
 input[type='number'] {
-  width: 65px;
+  width: 50px;
 }
 
 #siteSettings a {
@@ -72,4 +73,12 @@ input[type='number'] {
 .url-lowlight {
   color: gray !important;
   text-decoration-line: none !important;
+}
+
+#shortcut-controls {
+  margin-top: 20px;
+}
+
+#shortcut-update, #shortcut-reset, #shortcuts-link {
+  display: none;
 }
