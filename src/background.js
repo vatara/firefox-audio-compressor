@@ -7,6 +7,15 @@ var currentTheme;
 var isChrome = typeof window === 'undefined';
 var browser = browser || chrome;
 
+browser.commands.onCommand.addListener((command) => {
+  if (command === "toggle-enable") {
+    browser.tabs.query({ currentWindow: true, active: true }).then((tabs => {
+      if (tabs.length == 0) return;
+      browser.tabs.sendMessage(tabs[0].id, { type: "toggleEnable" });
+    }));
+  }
+});
+
 if (typeof browser.theme !== 'undefined') {
   browser.theme.getCurrent().then((theme) => {
     currentTheme = theme;
@@ -20,7 +29,8 @@ if (typeof browser.theme !== 'undefined') {
 }
 
 browser.runtime.onMessage.addListener((message) => {
-  if (message != null) {
+  if (message == null) return;
+  if (message.type == "isActive") {
     updateBrowserActionIcon(message.active);
   }
 });
@@ -32,23 +42,31 @@ function updateIconStatus(tab) {
   if (!url.startsWith('http')) {
     return;
   }
+
+  let message = {
+    type: "isActive"
+  };
+
   if (isChrome) {
-    try {
-      browser.tabs.sendMessage(tab.id, {}, null, (message) => {
-        if (message == null) {
-          // if you don't check this value chrome logs an error
-          var discardError = chrome.runtime.lastError;
-        }
-        else {
-          updateBrowserActionIcon(message.active);
-        }
-      });
-    }
-    catch (error) { }
+    browser.tabs.sendMessage(tab.id, message, null, (response) => {
+      if (response == null) {
+        // if you don't check this value chrome logs an error
+        var discardError = chrome.runtime.lastError;
+      }
+      else {
+        updateBrowserActionIcon(response.active);
+      }
+    });
   }
   else {
-    browser.tabs.sendMessage(tab.id, null).then(response => {
-      updateBrowserActionIcon(response.active);
+    browser.tabs.sendMessage(tab.id, message).then(response => {
+      if (response == null) {
+        // if you don't check this value chrome logs an error
+        var discardError = chrome.runtime.lastError;
+      }
+      else {
+        updateBrowserActionIcon(response.active);
+      }
     })
       .catch((error) => { });
   }

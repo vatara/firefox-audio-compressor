@@ -1,5 +1,7 @@
 'use strict';
 
+const isChrome = typeof (chrome.runtime.getBrowserInfo) == 'undefined';
+
 var elements = {
   //disableForCrossSiteElements: document.getElementById('disableForCrossSiteElements'),
   presets: document.getElementById('presets'),
@@ -244,16 +246,11 @@ function saveSettings() {
   console.log('saved', prefs);
 }
 
-var isChrome = false;
-if (typeof browser === 'undefined') {
-  window.browser = chrome;
-  isChrome = true;
-}
 if (isChrome) {
-  browser.tabs.query({ currentWindow: true, active: true }, queryTabsCallback);
+  chrome.tabs.query({ currentWindow: true, active: true }, queryTabsCallback);
 }
 else {
-  browser.tabs.query({ currentWindow: true, active: true }).then(queryTabsCallback, console.error);
+  chrome.tabs.query({ currentWindow: true, active: true }).then(queryTabsCallback, console.error);
 }
 
 function queryTabsCallback(tabs) {
@@ -324,3 +321,65 @@ function loadSettings() {
     onCurrentSiteChange();
   });
 }
+
+const commandName = 'toggle-enable';
+
+if (isChrome) {
+  document.querySelector('#shortcuts-link').style.display = "unset";
+  document.querySelector('#shortcut').disabled = true;
+}
+else {
+  document.querySelector('#shortcut-update').style.display = "unset";
+  document.querySelector('#shortcut-reset').style.display = "unset";
+}
+
+/**
+ * Update the UI: set the value of the shortcut textbox.
+ */
+async function updateUI() {
+  let commands = await chrome.commands.getAll();
+  for (let command of commands) {
+    if (command.name === commandName) {
+      document.querySelector('#shortcut').value = command.shortcut;
+    }
+  }
+}
+
+/**
+ * Update the shortcut based on the value in the textbox.
+ */
+async function updateShortcut() {
+  try {
+    await chrome.commands.update({
+      name: commandName,
+      shortcut: document.querySelector('#shortcut').value
+    });
+    document.querySelector('#shortcut-message').textContent = "";
+  }
+  catch (exception) {
+    document.querySelector('#shortcut-message').textContent = exception;
+  }
+}
+
+/**
+ * Reset the shortcut and update the textbox.
+ */
+async function resetShortcut() {
+  await chrome.commands.reset(commandName);
+  updateUI();
+}
+
+/**
+ * Update the UI when the page loads.
+ */
+document.addEventListener('DOMContentLoaded', updateUI);
+
+/**
+ * Handle update and reset button clicks
+ */
+document.querySelector('#shortcut-update').addEventListener('click', updateShortcut)
+document.querySelector('#shortcut-reset').addEventListener('click', resetShortcut)
+
+document.getElementById("shortcuts-link").addEventListener('click', () => chrome.tabs.create({
+  url: "chrome://extensions/shortcuts"
+}));

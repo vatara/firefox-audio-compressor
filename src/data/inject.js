@@ -144,7 +144,10 @@ function adjustSource(target, settings) {
   if (typeof browser === 'undefined') {
     window.browser = chrome;
   }
-  browser.runtime.sendMessage({ active: target.attached == true });
+  browser.runtime.sendMessage({
+    type: "isActive",
+    active: target.attached == true
+  });
 }
 
 function getBestSiteMatch() {
@@ -244,7 +247,16 @@ Audio.prototype.play = function () {
 if (typeof browser === 'undefined') {
   window.browser = chrome;
 }
-browser.runtime.onMessage.addListener(() => {
+browser.runtime.onMessage.addListener((message) => {
+  if (message.type == "isActive") {
+    onIsActiveMessage();
+  }
+  else if (message.type == "toggleEnable") {
+    toggleEnable();
+  }
+});
+
+function onIsActiveMessage() {
   if (window.audioCompressor == null) {
     return;
   }
@@ -261,5 +273,21 @@ browser.runtime.onMessage.addListener(() => {
     }
   }
 
-  chrome.runtime.sendMessage({ active: active });
-});
+  chrome.runtime.sendMessage({
+    type: "isActive",
+    active: active
+  });
+  // can't get this to work with chrome
+  //return Promise.resolve({ active: active });
+}
+
+function toggleEnable() {  
+  if (typeof window.audioCompressor == 'undefined') return;
+  
+  let site = getBestSiteMatch();
+  if (site == null) return;
+
+  prefs.sites[site].enabled = !prefs.sites[site].enabled;
+  chrome.storage.local.set(prefs);
+  console.log('Toggled enable for current site', prefs.sites[site]);
+}
