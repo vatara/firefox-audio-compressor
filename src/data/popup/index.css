@@ -10,12 +10,6 @@ body {
   min-width: 450px;
 }
 
-#body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
 @media only screen and (min-width: 480px) {
   body {
     overflow-x: hidden;
